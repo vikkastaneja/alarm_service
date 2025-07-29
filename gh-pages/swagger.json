@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Alarm Service API",
+    "version": "v1"
+  },
+  "paths": {
+    "/alarm/evaluate": {
+      "post": {
+        "summary": "Evaluate an alarm",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlarmInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evaluation result"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlarmInput": {
+        "type": "object",
+        "properties": {
+          "alarmId": { "type": "string" },
+          "value": { "type": "number" },
+          "threshold": { "type": "number" },
+          "operator": { "type": "string" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Alarm Service API",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Request Count",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[1m])",
+            "legendFormat": "{{method}} {{handler}}",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "schemaVersion": 26,
+    "version": 1
+  },
+  "overwrite": true
+}

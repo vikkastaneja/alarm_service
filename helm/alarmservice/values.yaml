@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: your-dockerhub-username/dotnet-alarm-service
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+redis:
+  enabled: true
+  image: redis:7
+  port: 6379
