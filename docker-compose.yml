@@ -7,3 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "5050:8080"
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

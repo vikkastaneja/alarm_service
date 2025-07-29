@@ -3,6 +3,7 @@ using AlarmService.Core;
 using AlarmService.Infrastructure;
 using AlarmService.Core.Models;
 using AlarmService.Core.Events;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -11,6 +12,8 @@ builder.Services.AddScoped<AlarmEvaluator>();
 builder.Services.AddScoped<AlarmRepository>();
 builder.Services.AddSingleton<EventPublisher>();
 builder.Services.AddSingleton<IEventSubscriber, ConsoleLoggingSubscriber>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("redis:6379"));
+builder.Services.AddScoped<AlarmRepository>();
 
 var app = builder.Build();
 app.UseSwagger();

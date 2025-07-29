@@ -1,92 +1,127 @@
-## 🔖 Badges
+# Alarm Service
 
-![.NET CI](https://github.com/<your-username>/dotnet-alarm-service/actions/workflows/dotnet.yml/badge.svg)
-![Docker](https://img.shields.io/badge/docker-ready-blue)
-![License](https://img.shields.io/github/license/<your-username>/dotnet-alarm-service)
+This is a modular, event-driven .NET 7 microservice designed to evaluate alarms, persist results, and publish events. It supports containerized deployment via Docker and includes Redis for pub/sub capabilities.
 
-# Alarm Service (.NET)
+## 📦 Project Structure
 
-This is a microservice-based Alarm Service implemented in .NET 7 with Docker support.
+```
+AlarmService.Api/             # Web API project
+AlarmService.Core/            # Domain models and business logic
+AlarmService.Infrastructure/  # Persistence and event publishing via Redis
+AlarmService.Tests/           # Unit tests for core logic
+```
 
-## Projects
-- **AlarmService.Api**: ASP.NET Core Web API
-- **AlarmService.Core**: Evaluation logic for alarms
-- **AlarmService.Infrastructure**: In-memory + Redis storage
-- **AlarmService.Tests**: xUnit tests
+## 🚀 Features
 
-## Getting Started
+- Evaluate alarms using business logic
+- Persist alarm status in Redis
+- Publish alarm events over Redis pub/sub
+- Swagger UI for API testing
+- Dockerized service with `docker-compose`
+- Supports external simulation and subscriptions
+- Unit tests with command-line execution
 
-### Prerequisites
-- Docker
-- .NET 7 SDK
+---
 
-### Run with Docker
+## 🔧 Prerequisites
+
+- [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download)
+- [Docker](https://www.docker.com/)
+- [Redis](https://hub.docker.com/_/redis) (included in `docker-compose`)
+- PowerShell or terminal for CLI execution
+
+---
+
+## 🐳 Running with Docker
+
+Build and run the API and Redis:
+
 ```bash
 docker-compose up --build
 ```
 
-### Test
+Then access:
+- Swagger UI: [http://localhost:5050/swagger](http://localhost:5050/swagger)
+- Health Check: `GET http://localhost:5050/status`
+
+---
+
+## 📬 API Endpoints
+
+### `POST /evaluate`
+
+Evaluates an alarm based on threshold comparison.
+
+#### Request Payload
+
+```json
+{
+  "alarmId": "sensor-101",
+  "operator": "GreaterThan",
+  "value": 75,
+  "threshold": 70
+}
+```
+
+#### Response
+
+```json
+{
+  "status": "Raised"
+}
+```
+
+---
+
+## 🔁 Event Publishing
+
+Each alarm result is published as:
+- Internal event via `AlarmRaisedEvent`
+- Redis channel: `alarms`, message format:  
+  `Alarm:<AlarmId> Status:<Raised|Normal>`
+
+You can subscribe using any Redis client:
+
+```bash
+redis-cli SUBSCRIBE alarms
+```
+
+---
+
+## 🧪 Running Unit Tests
+
+Tests are located in the `AlarmService.Tests` project:
+
 ```bash
 dotnet test AlarmService.Tests
 ```
 
-## Redis Usage
-Redis is used for temporary alarm state caching.
-## Swagger API Documentation
+---
 
-To enable Swagger UI for API exploration:
+## 🧠 Simulating Real Events (Optional)
 
-1. Add the following to `Program.cs` in `AlarmService.Api`:
+You can simulate real-world behavior using a separate CLI or script:
+
+```bash
+curl -X POST http://localhost:5050/evaluate \
+-H "Content-Type: application/json" \
+-d '{"alarmId": "sensor-55", "operator": "GreaterThan", "value": 90, "threshold": 85}'
+```
+
+This will trigger event publication and persistence in Redis.
+
+---
+
+## 🛠️ Configuration
+
+Modify `Program.cs` to change Redis host:
+
 ```csharp
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.MapControllers();
-app.Run();
-```
-
-2. Then run the API and open [http://localhost:8080/swagger](http://localhost:8080/swagger) in your browser.
----
-
-## ☁️ Azure DevOps: Build & Push to ACR
-
-Make sure you have an Azure DevOps pipeline and service connection named `MyACRServiceConnection`.
-
-Then commit the `azure-pipelines.yml` file and configure CI/CD in your Azure DevOps project.
-
-```yaml
-# Trigger pipeline with every push to main
-trigger:
-  branches:
-    include:
-      - main
+ConnectionMultiplexer.Connect("localhost"); 
 ```
 
 ---
 
-## 📊 Monitoring with Prometheus & Grafana
+## 📄 License
 
-### Prometheus
-Use the provided `monitoring/prometheus.yml` in your Prometheus config directory. It scrapes metrics from:
-
-```
-http://alarmservice:80
-```
-
-Ensure the application exposes metrics (e.g., with Prometheus .NET exporter).
-
-### Grafana
-Use the dashboard JSON in `monitoring/grafana_dashboard.json`:
-
-1. Open Grafana
-2. Go to Dashboards → Import
-3. Paste the JSON content or upload the file
-
-You'll see request rate metrics in a time-series panel.
-
----
+MIT License. Feel free to fork and extend.

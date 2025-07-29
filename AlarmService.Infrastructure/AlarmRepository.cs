@@ -1,6 +1,7 @@
 using AlarmService.Core;
 using AlarmService.Core.Events;
 using System;
+using StackExchange.Redis;
 
 namespace AlarmService.Infrastructure
 {
@@ -8,21 +9,32 @@ namespace AlarmService.Infrastructure
     {
         private readonly EventPublisher _publisher;
 
-        public AlarmRepository(EventPublisher publisher)
+        private readonly IConnectionMultiplexer _redis;
+
+        public AlarmRepository(EventPublisher publisher, IConnectionMultiplexer redis)
         {
             _publisher = publisher;
+            _redis = redis;
         }
 
         public void SaveResult(string alarmId, bool isRaised)
         {
-            Console.WriteLine($">> Alarm {alarmId} status: {(isRaised ? "Raised" : "Normal")}");
+            var db = _redis.GetDatabase();
+            var status = isRaised ? "Raised" : "Normal";
+
+            db.StringSet($"alarm:{alarmId}", status);
+
+            Console.WriteLine($">> Alarm {alarmId} status: {status}");
 
             var evt = new AlarmRaisedEvent
             {
                 AlarmId = alarmId,
-                Status = isRaised ? "Raised" : "Normal"
+                Status = status
             };
             _publisher.Publish(evt);
+
+            var pub = _redis.GetSubscriber();
+            pub.Publish("alarms", $"Alarm:{evt.AlarmId} Status:{(evt.Status)}");
         }
     }
 }
