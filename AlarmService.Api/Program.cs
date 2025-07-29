@@ -2,16 +2,24 @@
 using AlarmService.Core;
 using AlarmService.Infrastructure;
 using AlarmService.Core.Models;
+using AlarmService.Core.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AlarmEvaluator>();
 builder.Services.AddScoped<AlarmRepository>();
+builder.Services.AddSingleton<EventPublisher>();
+builder.Services.AddSingleton<IEventSubscriber, ConsoleLoggingSubscriber>();
 
 var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// Setup pub-sub after building
+var publisher = app.Services.GetRequiredService<EventPublisher>();
+var subscriber = app.Services.GetRequiredService<IEventSubscriber>();
+publisher.Subscribe(subscriber);
 
 app.MapGet("/", () => "Alarm Service is running");
 app.MapGet("/status", () => "Service is healthy");
