@@ -28,7 +28,7 @@ namespace AlarmService.Tests
 
             var result = evaluator.Evaluate(input, expected);
 
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
     }
 }

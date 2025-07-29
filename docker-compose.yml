@@ -1,6 +1,11 @@
 version: '3.4'
 
 services:
+  test:
+      build:
+        context: .
+        dockerfile: Dockerfile.test
+
   alarmservice.api:
     build:
       context: .
@@ -8,6 +13,7 @@ services:
     ports:
       - "5050:8080"
     depends_on:
+      - test
       - redis
 
   redis:

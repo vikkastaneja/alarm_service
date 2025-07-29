@@ -117,7 +117,7 @@ This will trigger event publication and persistence in Redis.
 Modify `Program.cs` to change Redis host:
 
 ```csharp
-ConnectionMultiplexer.Connect("localhost"); 
+ConnectionMultiplexer.Connect("localhost"); // or use environment variables
 ```
 
 ---
